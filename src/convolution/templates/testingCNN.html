@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="eng">
+	<head>
+		<title>"Convolutional Neural Network"</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<style type="text/css">
+			
+			.options label {
+				font-size: 12px;
+				font-family: Arial, Helvetica, sans-serif;
+				width: 100px;
+				text-align: left;
+				padding-right: 10px;
+			}
+
+			#outer-container {
+				display: flex;
+				flex-direction: row;
+			}
+
+			div.grid {
+				display: grid;
+				grid-template-columns: repeat(300, 2px);
+				grid-template-rows: repeat(300, 2px);
+				width: 600px;
+				height: 600px;
+				border: 2px solid black;
+				margin-left: 10px;
+			}
+			
+			div.grid > div {
+				margin: 0;
+				padding: 0;
+				border: 0;
+				color: white;
+				background-color: white;
+			}
+
+			div.grid > div.online {
+				background-color: gray;
+				color: gray;
+			}
+			
+			#form {
+				margin-left: 10px;
+				width: 500px;
+			}
+
+			ul li.links {
+				display: inline-block;
+				list-style-type: none;
+				margin: 20px;
+			}
+
+			td.align-right {
+				text-align: right;
+			}
+
+			.options input {
+				width: 50px;
+			}
+
+			td, th {
+				min-width: 75px;
+			}
+
+			th {
+				border: 2px solid black;
+				border-collapse: collapse;
+			}
+			td {
+				border: 1px solid darkgrey;
+				border-collapse: collapse;
+			}
+
+			table {
+				border-collapse: collapse;
+				border: 2px solid black;
+			}
+
+		</style>
+	</head>
+	<body>
+		<h3>Convolutional Neural Network Testing</h3>
+		<nav>
+			<ul>
+				<li class="links"><a href="http://127.0.0.1:8080/imageCNN">Train</a></li>
+				<li class="links"><a href="http://127.0.0.1:8080/imageCNNtest">Test</a></li>
+			</ul>
+		</nav>
+		<div id="outer-container">
+			<div class="grid">
+				{{range .Grid}}
+					<div class="{{.}}"></div>
+				{{end}}
+			</div>
+			<div id="form">
+				<div class="options">
+					<table>
+						<tr>
+							<td class="align-right">Hidden Layers:</td>
+							<td>{{.HiddenLayers}}</td>
+							<td class="align-right">Layer Depth:</td>
+							<td>{{.LayerDepth}}</td>
+						</tr>
+					</table>
+				</div>
+				<br />
+				<input type="text" name="status" value="{{.Status}}" readonly />
+				<h3>Test Results</h3>
+				<table>
+					<tr>
+						<th>Class</th>
+						<th>Character</th>
+						<th>Count</th>
+						<th>Correct (%)</th>
+					</tr>
+					{{range .TestResults}}
+						<tr>
+							<td>{{.Class}}</td>
+							<td>{{.Character}}</td>
+							<td>{{.Count}}</td>
+							<td>{{.Correct}}</td>
+						</tr>
+					{{end}}
+					<tr>
+						<td>Totals</td>
+						<td></td>
+						<td>{{.TotalCount}}</td>
+						<td>{{.TotalCorrect}}</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+	</body>
+</html>
