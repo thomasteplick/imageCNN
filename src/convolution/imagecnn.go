@@ -719,11 +719,11 @@ func (cnn *CNN) runClassification() error {
 		startCol  = 1  // padding
 		imageSize = 81 // 9 x 9 cells (2px)
 	)
-	endRow := cnn.rows
-	endCol := cnn.columns
+	stride := int(math.Sqrt(imageSize))
+	endRow := cnn.rows - stride
+	endCol := cnn.columns - stride
 	imageRow := int(math.Sqrt(imageSize))
 	imageCol := int(math.Sqrt(imageSize))
-	stride := int(math.Sqrt(imageSize))
 	charNumber := 0
 	sample := Sample{
 		desired: 0,
@@ -782,7 +782,7 @@ func (cnn *CNN) runClassification() error {
 	cnn.plot.LayerDepth = strconv.Itoa(cnn.layerDepth)
 	cnn.plot.Classes = strconv.Itoa(classes)
 
-	cnn.plot.Status = "Results completed."
+	cnn.plot.Status = "CNN Testing Results completed."
 
 	return nil
 }
@@ -797,11 +797,11 @@ func (cnn *CNN) drawCharacters() error {
 		startCol  = 1  // padding
 		imageSize = 81 // 9 x 9 cells (2px per cell)
 	)
-	endRow := cnn.rows
-	endCol := cnn.columns
+	stride := int(math.Sqrt(imageSize))
+	endRow := cnn.rows - stride
+	endCol := cnn.columns - stride
 	imageRow := int(math.Sqrt(imageSize))
 	imageCol := int(math.Sqrt(imageSize))
-	stride := int(math.Sqrt(imageSize))
 
 	// loop over rows, start at 1, end at cnn.rows, stride
 	for row := startRow; row < endRow; row += stride {
@@ -836,11 +836,11 @@ func (cnn *CNN) createExamplesTesting() error {
 		startCol  = 1  // padding
 		imageSize = 81 // 9 x 9 cells (2px)
 	)
-	endRow := cnn.rows
-	endCol := cnn.columns
+	stride := int(math.Sqrt(imageSize))
+	endRow := cnn.rows - stride
+	endCol := cnn.columns - stride
 	imageRow := int(math.Sqrt(imageSize))
 	imageCol := int(math.Sqrt(imageSize))
-	stride := int(math.Sqrt(imageSize))
 	charNumber := 0
 
 	// loop over rows, start at 1, end at cnn.rows, stride
@@ -849,12 +849,12 @@ func (cnn *CNN) createExamplesTesting() error {
 		for col := startCol; col < endCol; col += stride {
 			current := row*cnn.columns + col
 			// insert random encoded character in the grid
+			// randomly choose a char (class) and insert the encoded char
 			k := 0
+			class := rand.Intn(classes)
+			cnn.charTest[charNumber] = class
 			for i := 0; i < imageRow; i++ {
 				for j := 0; j < imageCol; j++ {
-					// randomly choose a char (class) and insert the encoded char
-					class := rand.Intn(classes)
-					cnn.charTest[charNumber] = class
 					cnn.grid[current+k] = int8(cnn.samples[class].encChar[k])
 					k++
 				}
