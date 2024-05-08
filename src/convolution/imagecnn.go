@@ -49,6 +49,11 @@ const (
 	classes            = 64      // number of classes and the number of training samples
 	imageSize          = 81      // character image size 9 x 9
 	testingSamples     = 33 * 33 // int(300/9) * int(300/9)
+	startRow           = 1       // padding
+	startCol           = 1       // padding
+	stride             = 9
+	imageRow           = 9
+	imageCol           = 9
 )
 
 // Type to contain all the HTML template actions
@@ -670,7 +675,8 @@ func handleTrainingCNN(w http.ResponseWriter, r *http.Request) {
 		cnn.plot.Momentum = strconv.FormatFloat(cnn.momentum, 'f', 3, 64)
 		cnn.plot.Epochs = strconv.Itoa(cnn.epochs)
 
-		// Save hidden layers, hidden layer depth, and weights to csv file, one layer per line
+		// Save hidden layers, hidden layer depth, learning rate, momentum,
+		// and weights to csv file, one layer per line
 		f, err := os.Create(path.Join(dataDir, fileweights))
 		if err != nil {
 			fmt.Printf("os.Create() file %s error: %v\n", path.Join(fileweights), err)
@@ -682,8 +688,8 @@ func handleTrainingCNN(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		defer f.Close()
-		fmt.Fprintf(f, "%d,%d\n",
-			cnn.hiddenLayers, cnn.layerDepth)
+		fmt.Fprintf(f, "%d,%d,%f,%f\n",
+			cnn.hiddenLayers, cnn.layerDepth, cnn.learningRate, cnn.momentum)
 		for _, layer := range cnn.link {
 			for _, node := range layer {
 				fmt.Fprintf(f, "%f,", node.wgt)
@@ -714,16 +720,9 @@ func (cnn *CNN) runClassification() error {
 	cnn.statistics =
 		Stats{correct: make([]int, classes), classCount: make([]int, classes)}
 
-	const (
-		startRow  = 1  // padding
-		startCol  = 1  // padding
-		imageSize = 81 // 9 x 9 cells (2px)
-	)
-	stride := int(math.Sqrt(imageSize))
 	endRow := cnn.rows - stride
 	endCol := cnn.columns - stride
-	imageRow := int(math.Sqrt(imageSize))
-	imageCol := int(math.Sqrt(imageSize))
+
 	charNumber := 0
 	sample := Sample{
 		desired: 0,
@@ -780,7 +779,8 @@ func (cnn *CNN) runClassification() error {
 
 	cnn.plot.HiddenLayers = strconv.Itoa(cnn.hiddenLayers)
 	cnn.plot.LayerDepth = strconv.Itoa(cnn.layerDepth)
-	cnn.plot.Classes = strconv.Itoa(classes)
+	cnn.plot.LearningRate = strconv.FormatFloat(cnn.learningRate, 'f', -1, 64)
+	cnn.plot.Momentum = strconv.FormatFloat(cnn.momentum, 'f', -1, 64)
 
 	cnn.plot.Status = "CNN Testing Results completed."
 
@@ -792,16 +792,8 @@ func (cnn *CNN) runClassification() error {
 // 9x9=81 cells.  There are 33*33=1089 characters in the grid.
 func (cnn *CNN) drawCharacters() error {
 
-	const (
-		startRow  = 1  // padding
-		startCol  = 1  // padding
-		imageSize = 81 // 9 x 9 cells (2px per cell)
-	)
-	stride := int(math.Sqrt(imageSize))
 	endRow := cnn.rows - stride
 	endCol := cnn.columns - stride
-	imageRow := int(math.Sqrt(imageSize))
-	imageCol := int(math.Sqrt(imageSize))
 
 	// loop over rows, start at 1, end at cnn.rows, stride
 	for row := startRow; row < endRow; row += stride {
@@ -835,12 +827,12 @@ func (cnn *CNN) createExamplesTesting() error {
 		startRow  = 1  // padding
 		startCol  = 1  // padding
 		imageSize = 81 // 9 x 9 cells (2px)
+		stride    = 9
+		imageRow  = 9
+		imageCol  = 9
 	)
-	stride := int(math.Sqrt(imageSize))
 	endRow := cnn.rows - stride
 	endCol := cnn.columns - stride
-	imageRow := int(math.Sqrt(imageSize))
-	imageCol := int(math.Sqrt(imageSize))
 	charNumber := 0
 
 	// loop over rows, start at 1, end at cnn.rows, stride
@@ -886,12 +878,22 @@ func newTestingCNN(plot *PlotT) (*CNN, error) {
 	items := strings.Split(line, ",")
 	hiddenLayers, err := strconv.Atoi(items[0])
 	if err != nil {
-		fmt.Printf("Conversion to int of %s error: %v", items[0], err)
+		fmt.Printf("Conversion to int of %s error: %v\n", items[0], err)
 		return nil, err
 	}
 	hidLayersDepth, err := strconv.Atoi(items[1])
 	if err != nil {
-		fmt.Printf("Conversion to int of %s error: %v", items[1], err)
+		fmt.Printf("Conversion to int of %s error: %v\n", items[1], err)
+		return nil, err
+	}
+	learningRate, err := strconv.ParseFloat(items[2], 64)
+	if err != nil {
+		fmt.Printf("Conversion to float of %s error: %v\n", items[2], err)
+		return nil, err
+	}
+	momentum, err := strconv.ParseFloat(items[3], 64)
+	if err != nil {
+		fmt.Printf("Conversion to float of %s error: %v\n", items[3], err)
 		return nil, err
 	}
 
@@ -901,6 +903,8 @@ func newTestingCNN(plot *PlotT) (*CNN, error) {
 		columns:      300,
 		hiddenLayers: hiddenLayers,
 		layerDepth:   hidLayersDepth,
+		learningRate: learningRate,
+		momentum:     momentum,
 		plot:         plot,
 		samples:      make([]Sample, classes),
 		charTest:     make([]int, testingSamples),

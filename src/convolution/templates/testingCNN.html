@@ -79,6 +79,10 @@
 				border: 2px solid black;
 			}
 
+			#status {
+				min-width: 350px;
+			}
+
 		</style>
 	</head>
 	<body>
@@ -104,10 +108,15 @@
 							<td class="align-right">Layer Depth:</td>
 							<td>{{.LayerDepth}}</td>
 						</tr>
+						<tr>
+							<td class="align-right">Learning Rate:</td>
+							<td>{{.LearningRate}}</td>
+							<td class="align-right">Momentum:</td>
+							<td>{{.Momentum}}</td>
+						</tr>
 					</table>
 				</div>
-				<br />
-				<input type="text" name="status" value="{{.Status}}" readonly />
+				<input type="text" id="status" name="status" value="{{.Status}}" readonly />
 				<h3>Test Results</h3>
 				<table>
 					<tr>
