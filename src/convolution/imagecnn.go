@@ -20,6 +20,9 @@ import (
 	"bufio"
 	"fmt"
 	"html/template"
+	"image"
+	"image/color"
+	"image/png"
 	"log"
 	"math"
 	"math/rand"
@@ -40,6 +43,7 @@ const (
 	ylabels            = 11                           // # labels on y axis
 	fileweights        = "weights.csv"                // cnn weights
 	filechars          = "encoded_chars.csv"          // encoded characters
+	imageFile          = "image.png"                  // image file
 	a                  = 1.7159                       // activation function const
 	b                  = 2.0 / 3.0                    // activation function const
 	K1                 = b / a
@@ -739,7 +743,7 @@ func (cnn *CNN) runClassification() error {
 			for i := 0; i < imageRow; i++ {
 				for j := 0; j < imageCol; j++ {
 					sample.desired = cnn.charTest[charNumber]
-					sample.encChar[k] = cnn.grid[current+k]
+					sample.encChar[k] = cnn.grid[current+j]
 					k++
 				}
 				current += cnn.columns
@@ -795,20 +799,18 @@ func (cnn *CNN) drawCharacters() error {
 	endRow := cnn.rows - stride
 	endCol := cnn.columns - stride
 
-	// loop over rows, start at 1, end at cnn.rows, stride
+	// loop over rows, start at 1, end at cnn.rows - stride
 	for row := startRow; row < endRow; row += stride {
-		// loop over columns, start at 1, end at cnn.columns, stride
+		// loop over columns, start at 1, end at cnn.columns - stride
 		for col := startCol; col < endCol; col += stride {
 			// insert this character in TestResults
 			current := row*cnn.columns + col
-			k := 0
 			for i := 0; i < imageRow; i++ {
 				for j := 0; j < imageCol; j++ {
 					// This cell is part of the character
-					if cnn.grid[current+k] == 1 {
+					if cnn.grid[current+j] == 1 {
 						cnn.plot.Grid[current+j] = "online"
 					}
-					k++
 				}
 				current += cnn.columns
 			}
@@ -823,21 +825,14 @@ func (cnn *CNN) createExamplesTesting() error {
 	// get the training examples using the encoded characters
 	cnn.createExamples()
 
-	const (
-		startRow  = 1  // padding
-		startCol  = 1  // padding
-		imageSize = 81 // 9 x 9 cells (2px)
-		stride    = 9
-		imageRow  = 9
-		imageCol  = 9
-	)
 	endRow := cnn.rows - stride
 	endCol := cnn.columns - stride
+
 	charNumber := 0
 
-	// loop over rows, start at 1, end at cnn.rows, stride
+	// loop over rows, start at 1, end at cnn.rows - stride
 	for row := startRow; row < endRow; row += stride {
-		// loop over columns, start at 1, end at cnn.columns, stride
+		// loop over columns, start at 1, end at cnn.columns - stride
 		for col := startCol; col < endCol; col += stride {
 			current := row*cnn.columns + col
 			// insert random encoded character in the grid
@@ -847,7 +842,7 @@ func (cnn *CNN) createExamplesTesting() error {
 			cnn.charTest[charNumber] = class
 			for i := 0; i < imageRow; i++ {
 				for j := 0; j < imageCol; j++ {
-					cnn.grid[current+k] = int8(cnn.samples[class].encChar[k])
+					cnn.grid[current+j] = int8(cnn.samples[class].encChar[k])
 					k++
 				}
 				current += cnn.columns
@@ -963,6 +958,62 @@ func newTestingCNN(plot *PlotT) (*CNN, error) {
 	return &cnn, nil
 }
 
+// createImage creates an image file (png or jpeg)
+func (cnn *CNN) createImage() error {
+	const (
+		width  = 300
+		height = 300
+	)
+	// Create an image with gray levels white=255 or black=0 in RGB format
+	img := image.NewNRGBA(image.Rect(0, 0, width, height))
+
+	// Loop over the grid and write white or black to the image in RGB format
+	//  depending on whether 1 or -1 is in the grid cell
+
+	n := 0
+	// loop over rows
+	for row := 0; row < height; row++ {
+		// loop over columns
+		for col := 0; col < width; col++ {
+			// This point in grid is part of a character
+			if cnn.grid[n] == 1 {
+				// put black in image
+				img.Set(col, row, color.NRGBA{
+					R: 100,
+					G: 100,
+					B: 100,
+					A: 255,
+				})
+				// This point is not part of a character
+			} else {
+				// put white in image
+				img.Set(col, row, color.NRGBA{
+					R: 255,
+					G: 255,
+					B: 255,
+					A: 255,
+				})
+			}
+			n++
+		}
+	}
+
+	// Create a png file and save the image to it
+	f, err := os.Create(path.Join(dataDir, imageFile))
+	if err != nil {
+		fmt.Printf("os.Create() file %s error: %v\n", path.Join(imageFile), err)
+		return fmt.Errorf("os.Create() file %s error: %v", imageFile, err.Error())
+	}
+	defer f.Close()
+
+	if err := png.Encode(f, img); err != nil {
+		fmt.Printf("png.Encode error: %v\n", err)
+		return fmt.Errorf("png.Encode error: %v", err.Error())
+	}
+
+	return nil
+}
+
 // handleTesting performs pattern classification of the test data
 func handleTestingCNN(w http.ResponseWriter, r *http.Request) {
 	var (
@@ -1020,10 +1071,21 @@ func handleTestingCNN(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	err = cnn.createImage()
+	if err != nil {
+		fmt.Printf("createImage() error: %v\n", err)
+		plot.Status = fmt.Sprintf("createImage() error: %v", err.Error())
+		if err := tmplTrainingCNN.Execute(w, plot); err != nil {
+			log.Fatalf("Write to HTTP output using template with error: %v\n", err)
+		}
+		return
+	}
+
 	// Execute data on HTML template
 	if err = tmplTestingCNN.Execute(w, cnn.plot); err != nil {
 		log.Fatalf("Write to HTTP output using template with error: %v\n", err)
 	}
+
 }
 
 // executive creates the HTTP handlers, listens and serves
