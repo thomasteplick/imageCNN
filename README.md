@@ -34,22 +34,27 @@ The characters are a sequence of eighty-one 1 and -1 integers that represent the
 encoded characters was produced by the character encoding repository program at thomasteplick/char-encoder.
 </p>
 <p>
-When the <i>Submit</i> button on the MLP Training Parameters form is clicked, the weights in the network are trained
+When the <i>Submit</i> button on the CNN Training Parameters form is clicked, the weights in the network are trained
 and the Learning Curve consisting of mean-square error (MSE) versus Epoch is displayed.  As can be seen in the screen shots below, 
-there is significant variance over the ensemble, but it eventually settles down after about 150 epochs. An epoch is the forward
+there is significant variance over the ensemble, but it eventually settles down after about 20 epochs. An epoch is the forward
 and backward propagation of all the 64 training samples.
 </p>
 <p>
-When the <i>Test</i> link is clicked, 64 examples are supplied to the MLP.  It classifies the alpha-numeric characters.
-The test results are tabulated and the actual characters are graphed from the encoding that was supplied to the MLP.
-It takes some trial-and-error with the MLP Training Parameters to reduce the MSE to zero.  It is possible to a specify a 
+When the <i>Test</i> link is clicked, 64 examples are supplied to the CNN-MLP.  It classifies the alpha-numeric characters.
+The test results are tabulated and the actual characters are graphed from the encoding that was supplied to the CNN-MLP.
+It takes some trial-and-error with the CNN Training Parameters to reduce the MSE to zero.  It is possible to a specify a 
 more complex MLP than necessary and not get good results.  For example, using more hidden layers, a greater layer depth,
-or over training with more examples than necessary may be detrimental to the MLP.  Clicking the <i>Train</i> link starts a new training
+or over training with more examples than necessary may be detrimental to the CNN-MLP.  Clicking the <i>Train</i> link starts a new training
 phase and the MLP Training Parameters must be entered again.
 </p>
 
-<b>Character Recognition Learning Curve, MSE vs Epoch, 3 Hidden Layers, Hidden Layer Depth = 10</b>
+<b>CNN-MLP Learning Curve, MSE vs Epoch, 1 Hidden Layer, Hidden Layer Depth = 15</b>
+![image](https://github.com/thomasteplick/imageCNN/assets/117768679/98b790da-4cec-4b66-93f2-314697ef27e5)
+
+<b>CNN-MLP Image Recognition Test Results, 1 Hidden Layer, Hidden Layer Depth = 15</b>
+![image](https://github.com/thomasteplick/imageCNN/assets/117768679/a0da68a2-9212-470c-8cd2-83eeb399768c)
+![image](https://github.com/thomasteplick/imageCNN/assets/117768679/acbae280-ae3d-4730-b79d-8892e1d9e056)
 
 
-<b>Character Recognition Test Results, 3 Hidden Layers, Hidden Layer Depth = 10</b>
+<b>image.png</b>
 
