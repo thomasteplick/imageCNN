@@ -49,12 +49,15 @@ phase and the MLP Training Parameters must be entered again.
 </p>
 
 <b>CNN-MLP Learning Curve, MSE vs Epoch, 1 Hidden Layer, Hidden Layer Depth = 15</b>
+
 ![image](https://github.com/thomasteplick/imageCNN/assets/117768679/98b790da-4cec-4b66-93f2-314697ef27e5)
 
 <b>CNN-MLP Image Recognition Test Results, 1 Hidden Layer, Hidden Layer Depth = 15</b>
+
 ![image](https://github.com/thomasteplick/imageCNN/assets/117768679/a0da68a2-9212-470c-8cd2-83eeb399768c)
 ![image](https://github.com/thomasteplick/imageCNN/assets/117768679/acbae280-ae3d-4730-b79d-8892e1d9e056)
 
+<b>image.png, 300x300</b>
 
-<b>image.png</b>
+![image](https://github.com/thomasteplick/imageCNN/assets/117768679/b11d0145-587f-48e6-a759-26a215dc217c)
 
