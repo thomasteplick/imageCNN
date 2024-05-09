@@ -1,4 +1,4 @@
-<h3>Convolutional Newural Network (CNN) using a Multilayer Perceptron (MLP) Neural Network with the Back-Propagation Algorithm for Image Recognition</h3>
+<h3>Convolutional Neural Network (CNN) using a Multilayer Perceptron (MLP) with the Back-Propagation Algorithm for Image Recognition</h3>
 <hr>
 This program is a web application written in Go that makes extensive use of the html/template package.
 Navigate to the C:\Users\your-name\ImageCNN\src\convolution\ directory and issue "go run imagecnn.go" to
@@ -16,8 +16,9 @@ This function is non-linear and differentiable and limits its output to be betwe
 characters in an image</b>.  The image contains 1089 randomly-placed characters.  The CNN is first trained using images of the 64 alpha-numeric characters
 plus "+" and "/".  The Learning Curve of mean-square error (MSE) versus epoch shows the results of this phase.  In the testing phase, the weights obtained
 from the training phase are used to classify the 1089 characters that are randomly placed in an image.  The image is scanned with forward propagation and
-each sub-image is classified.  The results of the classification are tabulated and the image is displayed.  In addition, a png format image is constructed from 
+each sub-image is classified.  The results of the classification are tabulated and the image is displayed.  In addition, a PNG image is constructed from 
 the image and saved  to the data/ directory.
+<br/>
 <p>
 The user selects the CNN-MLP training parameters:
 <li>Hidden Layers</li>
@@ -34,8 +35,9 @@ encoded characters was produced by the character encoding repository program at 
 </p>
 <p>
 When the <i>Submit</i> button on the MLP Training Parameters form is clicked, the weights in the network are trained
-and the mean-square error (MSE) is graphed versus Epoch.  As can be seen in the screen shots below, there is significant variance over the ensemble,
-but it eventually settles down after about 150 epochs. An epoch is the forward and backward propagation of all the 64 training samples.
+and the Learning Curve consisting of mean-square error (MSE) versus Epoch is displayed.  As can be seen in the screen shots below, 
+there is significant variance over the ensemble, but it eventually settles down after about 150 epochs. An epoch is the forward
+and backward propagation of all the 64 training samples.
 </p>
 <p>
 When the <i>Test</i> link is clicked, 64 examples are supplied to the MLP.  It classifies the alpha-numeric characters.
